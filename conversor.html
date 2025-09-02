@@ -1,0 +1,1419 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Página - Conversor de Imágenes Profesional</title>
+  
+  <!-- Contenedor para el dock principal - inicialmente oculto -->
+  <div id="header-container" style="visibility: hidden;"></div>
+
+  <!-- Cargar CSS del dock principal -->
+  <link rel="stylesheet" href="componentes/dock.css">
+
+  <!-- Fuentes de Google para el conversor -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Global Box Sizing for consistent layout */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --info-color: #17a2b8;
+      --warning-color: #ffc107;
+      --danger-color: #dc3545;
+      --light-bg: #f8f9fa;
+      --dark-text: #343a40;
+      --border-color: #e9ecef;
+      --card-bg: #ffffff;
+      --shadow-light: rgba(0,0,0,0.05);
+      --shadow-medium: rgba(0,0,0,0.1);
+      --shadow-strong: rgba(0,0,0,0.2);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--light-bg);
+      margin: 0;
+      padding: 20px;
+      color: var(--dark-text);
+      line-height: 1.6;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+      padding-top: 80px; /* Espacio para el dock fijo en la parte superior */
+    }
+    /* Eliminado h1 */
+    .main-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px var(--shadow-medium);
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+    .conversion-area {
+      display: flex;
+      gap: 25px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+    .input-section, .output-section {
+      flex: 1;
+      min-width: 45%;
+      background-color: #f0f4f8;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .section-header {
+        display: flex;
+        flex-direction: column; /* Cambiado a columna para que el tamaño total esté debajo del título */
+        align-items: flex-start; /* Alinea los elementos a la izquierda */
+        gap: 5px; /* Espacio reducido entre el título y el tamaño total */
+        margin-bottom: 10px;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 10px;
+        justify-content: flex-start; /* Alinea al inicio */
+        position: relative; /* Necesario para posicionar el tamaño total */
+    }
+    .section-title {
+      font-size: 3.3rem;
+      color: var(--primary-color);
+      font-weight: 600;
+      margin: 0;
+      width: 100%; /* Asegura que el título ocupe todo el ancho */
+      text-align: left; /* Alinea el título a la izquierda */
+    }
+
+    /* Estilos específicos para el dock interno del conversor */
+    .conversor-dock {
+      position: static; /* Asegura que no sea fijo */
+      transform: none; /* Elimina cualquier transformación */
+      max-width: 100%;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: center;
+      background-color: transparent; /* Fondo transparente para el dock interno */
+      padding: 0; /* Elimina padding del dock interno */
+      border-radius: 0; /* Elimina border-radius del dock interno */
+      box-shadow: none; /* Elimina sombra del dock interno */
+      margin-top: 30px; /* Añade un margen superior para dejar espacio al tamaño total */
+    }
+    .conversor-dock-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--primary-color);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 8px 15px;
+      border-radius: 8px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      background-color: var(--card-bg); /* Fondo para los items del dock interno */
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 5px var(--shadow-light);
+      margin: 0 5px; /* Espacio entre items del dock interno */
+    }
+    .conversor-dock-item:hover {
+      background-color: var(--primary-color);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px var(--shadow-medium);
+    }
+    .conversor-dock-item .icon {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+    }
+    .conversor-dock-item .text {
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .file-input {
+      width: 100%;
+      padding: 15px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 2px dashed var(--primary-color);
+      background-color: #e6f2ff;
+      cursor: pointer;
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+    .file-input:hover {
+      border-color: #0056b3;
+      background-color: #d9edff;
+    }
+
+    .download-size-info {
+        font-size: 0.8rem;
+        color: var(--secondary-color);
+        line-height: 1.2;
+        text-align: left; /* Alineado a la izquierda */
+        flex-grow: 0; /* No crece */
+        margin-left: 0; /* Elimina el margen izquierdo */
+        white-space: normal; /* Permite que el texto se envuelva */
+        overflow: visible; /* Asegura que el texto completo sea visible */
+        text-overflow: clip; /* No recorta el texto */
+        width: 100%; /* Ocupa todo el ancho disponible */
+        margin-top: 5px; /* Pequeño margen superior para separarlo del título */
+        position: absolute; /* Posicionamiento absoluto */
+        bottom: -25px; /* Ajusta esta propiedad para moverlo hacia arriba o abajo */
+        left: 0;
+        padding-left: 5px; /* Pequeño padding para que no toque el borde */
+    }
+    .download-size-info strong {
+        color: var(--dark-text);
+    }
+
+    .input-image-gallery, .output-image-gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+        padding-bottom: 15px;
+    }
+    .main-preview-container {
+        position: relative;
+        width: 100%;
+        max-width: 550px;
+        height: 300px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px var(--shadow-light);
+        background-color: #e6f2ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 15px;
+        /* cursor: pointer;  Eliminado para deshabilitar lightbox */
+    }
+    .main-preview-image {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        border-radius: 8px;
+        display: block;
+    }
+    .main-preview-placeholder {
+        color: var(--secondary-color);
+        font-style: italic;
+    }
+    .main-image-controls {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10px;
+    }
+    .main-image-nav-btn {
+        background-color: rgba(0,0,0,0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        font-size: 1.3rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.3s ease;
+    }
+    .main-image-nav-btn:hover {
+        background-color: rgba(0,0,0,0.8);
+    }
+    .main-image-info {
+        text-align: center;
+        margin-top: 10px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+    }
+    .main-image-info p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--dark-text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        width: 100%;
+    }
+    .main-image-info input, .main-image-info select {
+        margin-top: 5px;
+        width: 80%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid var(--border-color);
+    }
+    .thumbnail-grid {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding: 10px 0;
+        width: 100%;
+        justify-content: flex-start;
+        border-top: 1px solid var(--border-color);
+        padding-top: 15px;
+        align-items: flex-start; /* Asegura que las miniaturas se alineen en la parte superior */
+    }
+    .thumbnail-card {
+        flex-shrink: 0;
+        width: 100px;
+        height: 120px; /* Altura fija para todas las miniaturas */
+        border: 2px solid transparent;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: border-color 0.2s ease, transform 0.2s ease;
+        position: relative;
+        box-shadow: 0 2px 5px var(--shadow-light);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 5px;
+        background-color: var(--card-bg);
+    }
+    .thumbnail-card.selected {
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+    }
+    .thumbnail-card:hover {
+        border-color: var(--primary-color);
+    }
+    .thumbnail-image {
+        max-width: 100%;
+        max-height: 60px;
+        object-fit: contain;
+        border-radius: 4px;
+        margin-bottom: 5px;
+    }
+    .remove-thumbnail-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background-color: var(--danger-color);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+        z-index: 10;
+    }
+    .remove-thumbnail-btn:hover {
+        opacity: 1;
+    }
+    .thumbnail-format-label {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        background-color: rgba(0,0,0,0.6);
+        color: white;
+        font-size: 0.65rem;
+        padding: 2px 4px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        z-index: 5;
+    }
+    .thumbnail-card .name-info {
+        font-size: 0.7rem;
+        color: var(--dark-text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-align: center;
+        margin-top: auto;
+        margin-bottom: 0;
+    }
+    .thumbnail-card .size-info {
+        font-size: 0.7rem;
+        color: var(--secondary-color);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    .thumbnail-download-btn {
+        position: absolute;
+        bottom: 5px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 123, 255, 0.8);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.2s ease, background-color 0.2s ease;
+        z-index: 10;
+    }
+    .thumbnail-card:hover .thumbnail-download-btn {
+        opacity: 1;
+    }
+    .thumbnail-download-btn:hover {
+        background-color: var(--primary-color);
+    }
+
+    .file-info {
+        font-size: 0.85rem;
+        color: var(--secondary-color);
+        margin-top: 5px;
+    }
+    .heic-warning {
+        color: var(--danger-color);
+        font-weight: 500;
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+
+    /* Eliminado .pagination-controls */
+    /* Eliminado .pagination-btn */
+    /* Eliminado .page-info */
+
+    /* Eliminado .lightbox */
+    /* Eliminado .lightbox-content */
+    /* Eliminado .lightbox-category-label */
+    /* Eliminado .lightbox-img */
+    /* Eliminado .lightbox-info */
+    /* Eliminado .lightbox-nav-btn */
+    /* Eliminado .prev */
+    /* Eliminado .next */
+    /* Eliminado .close-btn */
+
+    .format-option-tooltip {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+    }
+    .format-option-tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: #555;
+        color: #fff;
+        text-align: center;
+        border-radius: 6px;
+        padding: 5px 0;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        margin-left: -100px;
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.8rem;
+        line-height: 1.2;
+    }
+    .format-option-tooltip .tooltiptext::after {
+        content: "";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #555 transparent transparent transparent;
+    }
+    .format-option-tooltip:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .message-history {
+        margin-bottom: 25px;
+        padding: 15px;
+        background-color: #e9ecef;
+        border-radius: 10px;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.03);
+        border: 1px solid var(--border-color);
+        max-height: 150px;
+        overflow-y: auto;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    .message-history-item {
+        padding: 6px 0;
+        border-bottom: 1px dashed #ced4da;
+        font-size: 0.95rem;
+        color: var(--dark-text);
+        transition: opacity 0.3s ease;
+    }
+    .message-history-item:last-child {
+        border-bottom: none;
+    }
+    .message-history-item.success {
+        color: var(--success-color);
+    }
+    .message-history-item.error {
+        color: var(--danger-color);
+    }
+    .message-history-item.info {
+        color: var(--primary-color);
+    }
+    .message-history-item.warning {
+        color: var(--warning-color);
+    }
+
+    .download-single-btn {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-top: 10px;
+    }
+    .download-single-btn:hover {
+        background-color: #0056b3;
+    }
+
+
+    @media(max-width:992px){
+      .conversion-area {
+        flex-direction: column;
+      }
+      .input-section, .output-section {
+        min-width: 100%;
+      }
+      /* Eliminado .lightbox-nav-btn */
+      /* Eliminado .prev */
+      /* Eliminado .next */
+    }
+    @media(max-width:600px){
+      /* Eliminado h1 */
+      .main-container {
+        padding: 20px;
+      }
+      .input-section, .output-section {
+        padding: 15px;
+        gap: 15px;
+      }
+      .section-title {
+        font-size: 1.5rem;
+      }
+      /* Los estilos del dock en media queries también se cargarán desde dock.css */
+      .dock { /* Esto afecta al dock principal */
+        padding: 8px 10px;
+        gap: 5px;
+        border-radius: 15px;
+      }
+      .dock-item { /* Esto afecta a los items del dock principal */
+        height: 40px;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+      }
+      .dock-item .icon {
+        font-size: 1rem;
+      }
+      .dock-item .text {
+        font-size: 0.65rem;
+      }
+      .conversor-dock-item { /* Ajuste para los items del dock interno en móviles */
+        padding: 5px 10px;
+        font-size: 0.7rem;
+      }
+      .conversor-dock-item .icon {
+        font-size: 1.2rem;
+      }
+      .conversor-dock-item .text {
+        font-size: 0.6rem;
+      }
+      .image-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      }
+      .download-size-info {
+          margin-left: 0;
+          margin-top: 5px; /* Ajustado para móviles */
+          text-align: left; /* Alineado a la izquierda en móviles */
+          width: 100%;
+          white-space: normal;
+          position: static; /* Vuelve a estático en móviles para flujo normal */
+          bottom: auto;
+          left: auto;
+          padding-left: 0;
+      }
+      .section-header {
+          align-items: flex-start; /* Asegura alineación a la izquierda */
+      }
+      .conversor-dock {
+          margin-top: 15px; /* Ajusta el margen superior para móviles */
+      }
+      .main-preview-image {
+          max-height: 200px;
+      }
+      .main-preview-container {
+          min-height: 200px;
+          height: 200px;
+      }
+      .thumbnail-card {
+          width: 80px;
+          height: 100px; /* Altura fija para móviles */
+      }
+      .thumbnail-image {
+          max-height: 50px;
+      }
+      .thumbnail-card .name-info, .thumbnail-card .size-info {
+          font-size: 0.6rem;
+      }
+      .thumbnail-download-btn {
+          width: 20px;
+          height: 20px;
+          font-size: 0.8rem;
+      }
+    }
+  </style>
+
+  <script>
+    // Detectar si la carpeta 'hub' está en la ruta
+    const pathParts = window.location.pathname.split('/');
+    const hubIndex = pathParts.lastIndexOf('hub');
+    const basePath = hubIndex !== -1
+      ? pathParts.slice(0, hubIndex + 1).join('/') + '/componentes/'
+      : './componentes/';
+
+    // Cargar CSS del dock principal (ya está en el head, pero se mantiene la lógica para consistencia)
+    const linkCSS = document.createElement('link');
+    linkCSS.rel = 'stylesheet';
+    linkCSS.href = basePath + 'dock.css';
+    document.head.appendChild(linkCSS);
+
+    // Cargar JS del fondo
+    const scriptFondo = document.createElement('script');
+    scriptFondo.src = basePath + 'fondo.js';
+    document.head.appendChild(scriptFondo);
+
+    // Cargar HTML y JS del dock principal después de que el CSS del dock esté cargado
+    linkCSS.onload = () => {
+      fetch(basePath + 'dock.html')
+        .then(res => res.text())
+        .then(data => {
+          const container = document.getElementById('header-container');
+          container.innerHTML = data;
+
+          // Ajustar enlaces dinámicos para el dock principal
+          const dockItems = container.querySelectorAll('.dock-item');
+          const links = {
+            home: basePath.replace('componentes/', '') + 'index.html', // Apunta a este mismo archivo
+            proyectos: basePath.replace('componentes/', '') + 'proyectos.html',
+            conversor: basePath.replace('componentes/', '') + 'conversor.html', // Mantener si hay una página separada para el conversor, o cambiar a index.html
+            sobre_mi: basePath.replace('componentes/', '') + 'sobre_mi.html',
+            redes: basePath.replace('componentes/', '') + 'redes_sociales.html'
+          };
+
+          dockItems.forEach(item => {
+            const section = item.dataset.section;
+            if (section === 'home') item.href = links.home;
+            if (section === 'projects') item.href = links.proyectos;
+            if (section === 'conversor') item.href = links.conversor;
+            if (section === 'sobre_mi') item.href = links.sobre_mi;
+            if (section === 'social') item.href = links.redes;
+          });
+
+          // Cargar JS del dock principal
+          const scriptJS = document.createElement('script');
+          scriptJS.src = basePath + 'dock.js';
+          document.body.appendChild(scriptJS);
+
+          // Mostrar el dock principal solo cuando todo esté listo
+          container.style.visibility = 'visible';
+        })
+        .catch(err => console.error('Error cargando dock:', err));
+    };
+  </script>
+</head>
+<body>
+  <!-- El contenedor del dock principal ya está en el head y se carga dinámicamente -->
+
+  <div class="main-container">
+    <!-- Eliminado h1 "Conversor de Imágenes Profesional" -->
+
+    <!-- Message History moved to top -->
+    <div class="message-history" id="messageHistory">
+        <p class="message-history-item info">Bienvenido al Conversor de Imágenes Profesional. ¡Empieza añadiendo tus imágenes!</p>
+    </div>
+
+    <div class="conversion-area">
+      <div class="input-section">
+        <div class="section-header">
+            <h2 class="section-title">Imágenes a Convertir</h2>
+            <div class="loader" id="loader"></div>
+        </div>
+        <!-- Dock interno del conversor con clases renombradas -->
+        <div class="conversor-dock" id="inputConversorDock">
+          <input type="file" accept="image/*,.heic,.heif" class="file-input" id="hiddenInputImages" multiple style="display: none;">
+          <a href="#" class="conversor-dock-item" onclick="document.getElementById('hiddenInputImages').click(); return false;">
+              <span class="icon">➕</span>
+              <span class="text">Añadir</span>
+          </a>
+          <a href="#" class="conversor-dock-item" onclick="clearAllInputImages(); return false;">
+              <span class="icon">🗑️</span>
+              <span class="text">Eliminar</span>
+          </a>
+          <a href="#" class="conversor-dock-item" onclick="convertImages(); return false;">
+              <span class="icon">🔄</span>
+              <span class="text">Convertir</span>
+          </a>
+        </div>
+
+        <div class="input-image-gallery">
+            <div class="main-preview-container" id="mainInputPreviewContainer">
+                <img class="main-preview-image" id="mainInputPreviewImage" src="" alt="Imagen Principal">
+                <p class="main-preview-placeholder" id="mainInputPreviewPlaceholder">Selecciona imágenes para empezar</p>
+                <div class="main-image-controls">
+                    <button class="main-image-nav-btn" onclick="navigateInputImages(-1)">&#10094;</button>
+                    <button class="main-image-nav-btn" onclick="navigateInputImages(1)">&#10095;</button>
+                </div>
+            </div>
+            <div class="main-image-info" id="mainInputImageInfo">
+                <p><strong>Nombre:</strong> <span id="currentInputImageName"> -</span></p>
+                <p><strong>Formato:</strong> <span id="currentInputImageFormatDisplay"> -</span></p>
+                <p><strong>Tamaño:</strong> <span id="currentInputImageSize"> -</span></p>
+                <p class="heic-warning" id="currentInputImageHeicWarning" style="display: none;">Archivo HEIC detectado</p>
+                <input type="text" placeholder="Nombre personalizado" id="currentInputImageCustomName" oninput="updateCustomName()">
+                <select id="currentInputImageFormat" onchange="updateOutputFormat()">
+                    <!-- Options generated by JS -->
+                </select>
+            </div>
+            <div class="thumbnail-grid" id="inputThumbnailGrid">
+                <!-- Thumbnails will be inserted here -->
+            </div>
+        </div>
+      </div>
+
+      <div class="output-section">
+        <div class="section-header">
+            <h2 class="section-title">Imágenes Convertidas</h2>
+            <!-- Total download size info moved here -->
+            <span class="download-size-info" id="totalDownloadSize"></span>
+        </div>
+        <!-- Dock interno del conversor para descargas con clases renombradas -->
+        <div class="conversor-dock" id="downloadButtonsContainer" style="display: none;">
+          <a href="#" class="conversor-dock-item" id="downloadAllZipBtn">
+              <span class="icon">📦</span>
+              <span class="text">ZIP</span>
+          </a>
+          <a href="#" class="conversor-dock-item normal" id="downloadAllNormalBtn">
+              <span class="icon">⬇️</span>
+              <span class="text">Individual</span>
+          </a>
+        </div>
+        
+
+        <div class="output-image-gallery">
+            <div class="main-preview-container" id="mainOutputPreviewContainer">
+                <img class="main-preview-image" id="mainOutputPreviewImage" src="" alt="Imagen Convertida">
+                <p class="main-preview-placeholder" id="mainOutputPreviewPlaceholder">Las imágenes convertidas aparecerán aquí</p>
+                <div class="main-image-controls">
+                    <button class="main-image-nav-btn" onclick="navigateOutputImages(-1)">&#10094;</button>
+                    <button class="main-image-nav-btn" onclick="navigateOutputImages(1)">&#10095;</button>
+                </div>
+            </div>
+            <div class="main-image-info" id="mainOutputImageInfo">
+                <p><strong>Nombre:</strong> <span id="currentOutputImageName"> -</span></p>
+                <p><strong>Formato:</strong> <span id="currentOutputImageFormatDisplay"> -</span></p>
+                <p><strong>Tamaño:</strong> <span id="currentOutputImageSize"> -</span></p>
+                <button class="download-single-btn" id="downloadMainOutputBtn" style="display: none;">Descargar Imagen</button>
+            </div>
+            <div class="thumbnail-grid" id="outputThumbnailGrid">
+                <!-- Thumbnails will be inserted here -->
+            </div>
+            <!-- Eliminado pagination-controls -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Eliminado Lightbox/Modal Structure -->
+
+  <!-- Librerías para el conversor -->
+  <script src="https://cdn.jsdelivr.net/npm/heic2any/dist/heic2any.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+  <script>
+    // Input Section Elements
+    const hiddenInputImages = document.getElementById('hiddenInputImages');
+    const mainInputPreviewContainer = document.getElementById('mainInputPreviewContainer');
+    const mainInputPreviewImage = document.getElementById('mainInputPreviewImage');
+    const mainInputPreviewPlaceholder = document.getElementById('mainInputPreviewPlaceholder');
+    const currentInputImageName = document.getElementById('currentInputImageName');
+    const currentInputImageFormatDisplay = document.getElementById('currentInputImageFormatDisplay');
+    const currentInputImageSize = document.getElementById('currentInputImageSize');
+    const currentInputImageHeicWarning = document.getElementById('currentInputImageHeicWarning');
+    const currentInputImageCustomName = document.getElementById('currentInputImageCustomName');
+    const currentInputImageFormat = document.getElementById('currentInputImageFormat');
+    const inputThumbnailGrid = document.getElementById('inputThumbnailGrid');
+    const loader = document.getElementById('loader');
+
+    // Output Section Elements
+    const mainOutputPreviewContainer = document.getElementById('mainOutputPreviewContainer');
+    const mainOutputPreviewImage = document.getElementById('mainOutputPreviewImage');
+    const mainOutputPreviewPlaceholder = document.getElementById('mainOutputPreviewPlaceholder');
+    const currentOutputImageName = document.getElementById('currentOutputImageName');
+    const currentOutputImageFormatDisplay = document.getElementById('currentOutputImageFormatDisplay');
+    const currentOutputImageSize = document.getElementById('currentOutputImageSize');
+    const downloadMainOutputBtn = document.getElementById('downloadMainOutputBtn');
+    const outputThumbnailGrid = document.getElementById('outputThumbnailGrid');
+    const downloadButtonsContainer = document.getElementById('downloadButtonsContainer');
+    const totalDownloadSizeSpan = document.getElementById('totalDownloadSize');
+    // Eliminado const paginationControls = document.getElementById('paginationControls');
+    // Eliminado const prevPageBtn = document.getElementById('prevPageBtn');
+    // Eliminado const nextPageBtn = document.getElementById('nextPageBtn');
+
+    // Eliminado Lightbox Elements
+    // const lightbox = document.getElementById('lightbox');
+    // const lightboxImage = document.getElementById('lightboxImage');
+    // const lightboxName = document.getElementById('lightboxName');
+    // const lightboxFormat = document.getElementById('lightboxFormat');
+    // const lightboxSize = document.getElementById('lightboxSize');
+    // const lightboxCategoryLabel = document.getElementById('lightboxCategoryLabel');
+
+    // Message History Element
+    const messageHistory = document.getElementById('messageHistory');
+
+    let inputFiles = [];
+    let currentInputImageIndex = -1;
+    let convertedBlobs = [];
+    let currentOutputImageIndex = -1;
+    // Eliminado let currentLightboxIndex = 0;
+    // Eliminado let lightboxSource = '';
+
+    // Eliminado const IMAGES_PER_PAGE = 12;
+    // Eliminado let currentPage = 1;
+
+    const NO_PREVIEW_IMAGE_BASE64 = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+CiAgPHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiNlMGQwZDBiIi8+CiAgPHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTUwLDQ1Yy0yLjcsMC01LDIuMy01LDVzMi4zLDUsNSw1czUtMi4zLDUtNVM1Mi43LDQ1LDUwLDQ1eiBNNzUsMjVIMjVjLTIuOCwwLTUsMi4yLTUsNVY3MGMwLDIuOCwyLjIsNSw1LDVoNTBjMi44LDAsNS0yLjIsNS01VjMwdEM4MCwyNy4yLDc3LjgsMjUsNzUsMjV6IE03MCw2NUw1NSw1MEw0NSw2MEwzNSw1NUwyNSw2NUg3MFY2NXoiLz4KICA8dGV4dCB4PSI1MCIgeT01NSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEycHgiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9vcj0ibWlkZGxlIj5QcmV2aWV3IG5vdCBhdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg==';
+
+    const formatDescriptions = {
+        'image/png': 'PNG: Alta calidad, sin pérdidas, soporta transparencia. Archivos grandes.',
+        'image/jpeg': 'JPEG: Buena calidad, con pérdidas, ideal para fotos. Archivos pequeños.',
+        'image/webp': 'WEBP: Buen balance calidad/tamaño, soporta transparencia. Compatibilidad creciente.',
+        'image/bmp': 'BMP: Sin compresión, alta calidad, sin pérdidas. Archivos muy grandes, poca compatibilidad web.',
+        'image/gif': 'GIF: Soporta animaciones y transparencia simple. Baja calidad, pocos colores.',
+        'image/tiff': 'TIFF: Muy alta calidad, sin pérdidas, ideal para impresión. Archivos muy grandes, baja compatibilidad web.',
+        'image/x-icon': 'ICO: Formato de icono, usado para favicons. Soporte limitado para conversión en navegador.'
+    };
+
+    function formatBytes(bytes, decimals = 2) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const dm = decimals < 0 ? 0 : decimals;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function getFileNameWithoutExtension(filename) {
+        const lastDotIndex = filename.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+            return filename;
+        }
+        return filename.substring(0, lastDotIndex);
+    }
+
+    function getFileExtension(filename) {
+        const lastDotIndex = filename.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+            return '';
+        }
+        return filename.substring(lastDotIndex + 1).toUpperCase();
+    }
+
+    function addMessage(type, message) {
+        const messageItem = document.createElement('p');
+        messageItem.className = `message-history-item ${type}`;
+        messageItem.textContent = message;
+        messageHistory.appendChild(messageItem);
+        messageHistory.scrollTop = messageHistory.scrollHeight;
+    }
+
+    hiddenInputImages.addEventListener('change', (event) => {
+      const newFiles = [...event.target.files];
+      if (newFiles.length === 0) return;
+
+      newFiles.forEach(file => {
+        inputFiles.push({
+          file: file,
+          customName: '',
+          outputFormat: 'image/png'
+        });
+        addMessage('info', `Archivo añadido: "${file.name}"`);
+      });
+
+      event.target.value = '';
+
+      renderInputImages();
+      if (inputFiles.length > 0) {
+        selectInputImage(inputFiles.length - 1);
+      }
+    });
+
+    function renderInputImages() {
+      inputThumbnailGrid.innerHTML = '';
+      if (inputFiles.length === 0) {
+        mainInputPreviewImage.src = '';
+        mainInputPreviewImage.style.display = 'none';
+        mainInputPreviewPlaceholder.style.display = 'block';
+        mainInputPreviewPlaceholder.textContent = 'Selecciona imágenes para empezar';
+        currentInputImageName.textContent = '-';
+        currentInputImageFormatDisplay.textContent = '-';
+        currentInputImageSize.textContent = '-';
+        currentInputImageHeicWarning.style.display = 'none';
+        currentInputImageCustomName.value = '';
+        currentInputImageFormat.innerHTML = generateFormatOptionsHtml('image/png');
+        currentInputImageIndex = -1;
+        return;
+      }
+
+      inputFiles.forEach((item, index) => {
+        const thumbnailCard = document.createElement('div');
+        thumbnailCard.className = 'thumbnail-card';
+        thumbnailCard.dataset.index = index;
+        thumbnailCard.onclick = () => selectInputImage(index);
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'thumbnail-image';
+          thumbnailCard.appendChild(img);
+        };
+        
+        const fileExtension = getFileExtension(item.file.name);
+        const isHEIC = ['HEIC', 'HEIF'].includes(fileExtension);
+
+        if (item.file.type.startsWith('image/') && !isHEIC) {
+          reader.readAsDataURL(item.file);
+        } else {
+          const img = document.createElement('img');
+          img.src = NO_PREVIEW_IMAGE_BASE64;
+          img.className = 'thumbnail-image';
+          thumbnailCard.appendChild(img);
+        }
+
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-thumbnail-btn';
+        removeBtn.textContent = 'X';
+        removeBtn.onclick = (e) => {
+          e.stopPropagation();
+          removeInputImage(index);
+        };
+        thumbnailCard.appendChild(removeBtn);
+
+        const formatLabel = document.createElement('span');
+        formatLabel.className = 'thumbnail-format-label';
+        formatLabel.textContent = fileExtension;
+        thumbnailCard.appendChild(formatLabel);
+
+        const nameInfo = document.createElement('p');
+        nameInfo.className = 'name-info';
+        nameInfo.textContent = getFileNameWithoutExtension(item.file.name);
+        thumbnailCard.appendChild(nameInfo);
+
+        const sizeInfo = document.createElement('p');
+        sizeInfo.className = 'size-info';
+        sizeInfo.textContent = formatBytes(item.file.size);
+        thumbnailCard.appendChild(sizeInfo);
+
+        inputThumbnailGrid.appendChild(thumbnailCard);
+      });
+
+      if (currentInputImageIndex !== -1) {
+        const selectedThumbnail = inputThumbnailGrid.querySelector(`[data-index="${currentInputImageIndex}"]`);
+        if (selectedThumbnail) {
+          selectedThumbnail.classList.add('selected');
+        }
+      }
+    }
+
+    function generateFormatOptionsHtml(selectedValue) {
+        let optionsHtml = '';
+        const formats = {
+            'image/png': 'PNG',
+            'image/jpeg': 'JPEG',
+            'image/webp': 'WEBP',
+            'image/bmp': 'BMP',
+            'image/gif': 'GIF',
+            'image/tiff': 'TIFF',
+            'image/x-icon': 'ICO'
+        };
+        for (const mime in formats) {
+            const description = formatDescriptions[mime] || '';
+            optionsHtml += `
+                <option value="${mime}" ${mime === selectedValue ? 'selected' : ''}>
+                    ${formats[mime]}
+                </option>
+            `;
+        }
+        return optionsHtml;
+    }
+
+    currentInputImageFormat.innerHTML = generateFormatOptionsHtml('image/png');
+
+    currentInputImageFormat.addEventListener('mouseover', (e) => {
+        if (e.target.tagName === 'OPTION') {
+            const mime = e.target.value;
+            const description = formatDescriptions[mime];
+            if (description) {
+                let tooltip = document.getElementById('formatTooltip');
+                if (!tooltip) {
+                    tooltip = document.createElement('div');
+                    tooltip.id = 'formatTooltip';
+                    tooltip.className = 'tooltiptext';
+                    document.body.appendChild(tooltip);
+                }
+                tooltip.textContent = description;
+                tooltip.style.visibility = 'visible';
+                tooltip.style.opacity = '1';
+
+                const rect = e.target.getBoundingClientRect();
+                tooltip.style.left = `${rect.left + rect.width / 2}px`;
+                tooltip.style.top = `${rect.top - tooltip.offsetHeight - 10}px`;
+                tooltip.style.transform = 'translateX(-50%)';
+            }
+        }
+    });
+
+    currentInputImageFormat.addEventListener('mouseout', (e) => {
+        const tooltip = document.getElementById('formatTooltip');
+        if (tooltip) {
+            tooltip.style.visibility = 'hidden';
+            tooltip.style.opacity = '0';
+        }
+    });
+
+    function selectInputImage(index) {
+      if (index < 0 || index >= inputFiles.length) return;
+
+      currentInputImageIndex = index;
+      const selectedItem = inputFiles[currentInputImageIndex];
+
+      mainInputPreviewPlaceholder.style.display = 'none';
+      mainInputPreviewImage.style.display = 'block';
+      
+      const fileExtension = getFileExtension(selectedItem.file.name);
+      const isHEIC = ['HEIC', 'HEIF'].includes(fileExtension);
+
+      if (selectedItem.file.type.startsWith('image/') && !isHEIC) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          mainInputPreviewImage.src = e.target.result;
+        };
+        reader.readAsDataURL(selectedItem.file);
+      } else {
+        mainInputPreviewImage.src = NO_PREVIEW_IMAGE_BASE64;
+        mainInputPreviewImage.style.display = 'block';
+        mainInputPreviewPlaceholder.style.display = 'none';
+      }
+
+      currentInputImageName.textContent = getFileNameWithoutExtension(selectedItem.file.name);
+      currentInputImageFormatDisplay.textContent = getFileExtension(selectedItem.file.name);
+      currentInputImageSize.textContent = formatBytes(selectedItem.file.size);
+      currentInputImageHeicWarning.style.display = isHEIC ? 'block' : 'none';
+      currentInputImageCustomName.value = selectedItem.customName;
+      currentInputImageFormat.value = selectedItem.outputFormat;
+
+      inputThumbnailGrid.querySelectorAll('.thumbnail-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+      const selectedThumbnail = inputThumbnailGrid.querySelector(`[data-index="${index}"]`);
+      if (selectedThumbnail) {
+        selectedThumbnail.classList.add('selected');
+        selectedThumbnail.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+      }
+    }
+
+    function navigateInputImages(direction) {
+      if (inputFiles.length === 0) return;
+      let newIndex = currentInputImageIndex + direction;
+      if (newIndex >= inputFiles.length) newIndex = 0;
+      if (newIndex < 0) newIndex = inputFiles.length - 1;
+      selectInputImage(newIndex);
+    }
+
+    function updateCustomName() {
+      if (currentInputImageIndex !== -1) {
+        inputFiles[currentInputImageIndex].customName = currentInputImageCustomName.value;
+      }
+    }
+
+    function updateOutputFormat() {
+      if (currentInputImageIndex !== -1) {
+        inputFiles[currentInputImageIndex].outputFormat = currentInputImageFormat.value;
+      }
+    }
+
+    function removeInputImage(indexToRemove) {
+      if (indexToRemove < 0 || indexToRemove >= inputFiles.length) return;
+
+      const removedFileName = inputFiles[indexToRemove].file.name;
+      inputFiles.splice(indexToRemove, 1);
+      addMessage('info', `Archivo eliminado: "${removedFileName}"`);
+
+      if (currentInputImageIndex === indexToRemove) {
+        if (inputFiles.length > 0) {
+          selectInputImage(Math.min(indexToRemove, inputFiles.length - 1));
+        } else {
+          renderInputImages();
+        }
+      } else if (currentInputImageIndex > indexToRemove) {
+        currentInputImageIndex--;
+        selectInputImage(currentInputImageIndex);
+      } else {
+        renderInputImages();
+      }
+    }
+
+    function clearAllInputImages() {
+      if (inputFiles.length === 0) {
+        addMessage('info', 'No hay imágenes en la lista para eliminar.');
+        return;
+      }
+      if (confirm('¿Estás seguro de que quieres eliminar todas las imágenes de la lista?')) {
+        inputFiles = [];
+        renderInputImages();
+        addMessage('info', 'Todas las imágenes de entrada han sido eliminadas.');
+      }
+    }
+
+    async function convertImages() {
+      if (inputFiles.length === 0) {
+        addMessage('warning', 'Por favor, selecciona al menos una imagen para convertir.');
+        return;
+      }
+
+      outputThumbnailGrid.innerHTML = '';
+      mainOutputPreviewImage.src = '';
+      mainOutputPreviewImage.style.display = 'none';
+      mainOutputPreviewPlaceholder.style.display = 'block';
+      mainOutputPreviewPlaceholder.textContent = 'Las imágenes convertidas aparecerán aquí';
+      currentOutputImageName.textContent = '-';
+      currentOutputImageFormatDisplay.textContent = '-';
+      currentOutputImageSize.textContent = '-';
+      downloadMainOutputBtn.style.display = 'none';
+
+      loader.style.display = 'inline-block';
+      downloadButtonsContainer.style.display = 'none';
+      // Eliminado paginationControls.style.display = 'none';
+      totalDownloadSizeSpan.textContent = '';
+      convertedBlobs = [];
+
+      let totalSize = 0;
+      let conversionErrorOccurred = false;
+
+      addMessage('info', 'Iniciando conversión de imágenes...');
+
+      for (let i = 0; i < inputFiles.length; i++) {
+        const item = inputFiles[i];
+        const file = item.file;
+        const originalFormat = file.type;
+        const targetFormat = item.outputFormat;
+        const customName = item.customName.trim();
+        const originalName = getFileNameWithoutExtension(file.name);
+        const ext = targetFormat.split('/')[1];
+        const outputName = customName ? `${customName}.${ext}` : `${originalName}_convertido.${ext}`;
+
+        let blob;
+        const fileExtension = getFileExtension(file.name);
+        const isHEIC = ['HEIC', 'HEIF'].includes(fileExtension);
+
+        try {
+          if (isHEIC) {
+            blob = await heic2any({ blob: file, toType: targetFormat });
+          }
+          else if (originalFormat === targetFormat) {
+            blob = file;
+          }
+          else {
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            await img.decode();
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            blob = await new Promise(res => canvas.toBlob(res, targetFormat));
+            URL.revokeObjectURL(img.src);
+          }
+
+          const url = URL.createObjectURL(blob);
+          convertedBlobs.push({ name: outputName, blob: blob, url: url, format: targetFormat });
+          totalSize += blob.size;
+          addMessage('success', `"${file.name}" convertido a "${outputName}" con éxito.`);
+
+        } catch (err) {
+          conversionErrorOccurred = true;
+          const errorCode = `[Error #${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}]`;
+          addMessage('error', `¡Error de conversión! ${errorCode} Archivo: "${file.name}". Mensaje: "${err.message}". Sugerencia: Intenta con una sola imagen o verifica que el nombre de salida no esté repetido.`);
+          console.error(`Error converting ${file.name}:`, err);
+        }
+      }
+
+      loader.style.display = 'none';
+      if (convertedBlobs.length > 0) {
+        downloadButtonsContainer.style.display = 'flex';
+        
+        const estimatedZipSize = totalSize * 0.8; 
+        totalDownloadSizeSpan.innerHTML = `<strong>Tamaño Total:</strong> ${formatBytes(totalSize)} (Individual) / ${formatBytes(estimatedZipSize)} (ZIP estimado)`;
+        
+        // Eliminado currentPage = 1;
+        renderOutputImages();
+        selectOutputImage(0);
+        if (!conversionErrorOccurred) {
+            addMessage('success', '¡Todas las imágenes seleccionadas han sido convertidas con éxito!');
+        } else {
+            addMessage('warning', 'Conversión finalizada con algunos errores. Revisa el historial de mensajes para más detalles.');
+        }
+      } else {
+        outputThumbnailGrid.innerHTML = '<p style="text-align: center; color: var(--secondary-color);">No se pudieron convertir imágenes.</p>';
+        if (!conversionErrorOccurred) {
+            addMessage('error', 'No se pudieron convertir imágenes. Asegúrate de que los archivos sean válidos.');
+        }
+      }
+    }
+
+    function renderOutputImages() {
+        outputThumbnailGrid.innerHTML = '';
+        // Eliminado const totalPages = Math.ceil(convertedBlobs.length / IMAGES_PER_PAGE);
+        // Eliminado const startIndex = (currentPage - 1) * IMAGES_PER_PAGE;
+        // Eliminado const endIndex = Math.min(startIndex + IMAGES_PER_PAGE, convertedBlobs.length);
+
+        if (convertedBlobs.length === 0) {
+            // Eliminado paginationControls.style.display = 'none';
+            selectOutputImage(-1);
+            return;
+        }
+
+        // Bucle para renderizar todas las imágenes sin paginación
+        for (let i = 0; i < convertedBlobs.length; i++) {
+            const item = convertedBlobs[i];
+            const thumbnailCard = document.createElement('div');
+            thumbnailCard.className = 'thumbnail-card';
+            thumbnailCard.dataset.index = i;
+            thumbnailCard.onclick = () => selectOutputImage(i);
+
+            const img = document.createElement('img');
+            img.className = 'thumbnail-image';
+            if (item.format !== 'image/tiff' && item.format !== 'image/x-icon') { 
+                img.src = item.url;
+            } else {
+                img.src = NO_PREVIEW_IMAGE_BASE64;
+            }
+            thumbnailCard.appendChild(img);
+
+            const formatLabel = document.createElement('span');
+            formatLabel.className = 'thumbnail-format-label';
+            formatLabel.textContent = getFileExtension(item.name);
+            thumbnailCard.appendChild(formatLabel);
+
+            const nameInfo = document.createElement('p');
+            nameInfo.className = 'name-info';
+            nameInfo.textContent = getFileNameWithoutExtension(item.name);
+            thumbnailCard.appendChild(nameInfo);
+
+            const sizeInfo = document.createElement('p');
+            sizeInfo.className = 'size-info';
+            sizeInfo.textContent = formatBytes(item.blob.size);
+            thumbnailCard.appendChild(sizeInfo);
+
+            const downloadBtn = document.createElement('button');
+            downloadBtn.className = 'thumbnail-download-btn';
+            downloadBtn.innerHTML = '&#x2193;';
+            downloadBtn.onclick = (e) => {
+                e.stopPropagation();
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.download = item.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                addMessage('info', `Descargando "${item.name}"...`);
+            };
+            thumbnailCard.appendChild(downloadBtn);
+
+            outputThumbnailGrid.appendChild(thumbnailCard);
+        }
+
+        // Eliminado prevPageBtn.disabled = currentPage === 1;
+        // Eliminado nextPageBtn.disabled = currentPage === totalPages;
+        
+        // Eliminado if (totalPages > 1) {
+        //     paginationControls.style.display = 'flex';
+        // } else {
+        //     paginationControls.style.display = 'none';
+        // }
+
+        if (currentOutputImageIndex === -1 || currentOutputImageIndex >= convertedBlobs.length) { // Ajustado para no paginación
+            selectOutputImage(0);
+        } else {
+            const selectedThumbnail = outputThumbnailGrid.querySelector(`[data-index="${currentOutputImageIndex}"]`);
+            if (selectedThumbnail) {
+                selectedThumbnail.classList.add('selected');
+            }
+        }
+    }
+
+    function selectOutputImage(index) {
+        if (index < 0 || index >= convertedBlobs.length) {
+            mainOutputPreviewImage.src = '';
+            mainOutputPreviewImage.style.display = 'none';
+            mainOutputPreviewPlaceholder.style.display = 'block';
+            mainOutputPreviewPlaceholder.textContent = 'Las imágenes convertidas aparecerán aquí';
+            currentOutputImageName.textContent = '-';
+            currentOutputImageFormatDisplay.textContent = '-';
+            currentOutputImageSize.textContent = '-';
+            downloadMainOutputBtn.style.display = 'none';
+            currentOutputImageIndex = -1;
+            return;
+        }
+
+        currentOutputImageIndex = index;
+        const selectedItem = convertedBlobs[currentOutputImageIndex];
+
+        mainOutputPreviewPlaceholder.style.display = 'none';
+        mainOutputPreviewImage.style.display = 'block';
+
+        if (selectedItem.format !== 'image/tiff' && selectedItem.format !== 'image/x-icon') {
+            mainOutputPreviewImage.src = selectedItem.url;
+        } else {
+            mainOutputPreviewImage.src = NO_PREVIEW_IMAGE_BASE64;
+        }
+
+        currentOutputImageName.textContent = getFileNameWithoutExtension(selectedItem.name);
+        currentOutputImageFormatDisplay.textContent = getFileExtension(selectedItem.name);
+        currentOutputImageSize.textContent = formatBytes(selectedItem.blob.size);
+        downloadMainOutputBtn.style.display = 'block';
+        downloadMainOutputBtn.onclick = () => {
+            const link = document.createElement('a');
+            link.href = selectedItem.url;
+            link.download = selectedItem.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            addMessage('info', `Descargando "${selectedItem.name}"...`);
+        };
+
+        outputThumbnailGrid.querySelectorAll('.thumbnail-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        const selectedThumbnail = outputThumbnailGrid.querySelector(`[data-index="${index}"]`);
+        if (selectedThumbnail) {
+            selectedThumbnail.classList.add('selected');
+            selectedThumbnail.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+        }
+    }
+
+    function navigateOutputImages(direction) {
+        if (convertedBlobs.length === 0) return;
+        let newIndex = currentOutputImageIndex + direction;
+        if (newIndex >= convertedBlobs.length) newIndex = 0;
+        if (newIndex < 0) newIndex = convertedBlobs.length - 1;
+        selectOutputImage(newIndex);
+    }
+
+    // Eliminado function changePage(direction) { ... }
+
+    downloadAllZipBtn.addEventListener('click', async () => {
+      if (convertedBlobs.length === 0) {
+        addMessage('warning', 'No hay imágenes convertidas para descargar.');
+        return;
+      }
+
+      addMessage('info', 'Preparando descarga de todas las imágenes en formato ZIP...');
+      const zip = new JSZip();
+      convertedBlobs.forEach(item => {
+        zip.file(item.name, item.blob);
+      });
+
+      try {
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        saveAs(zipBlob, "imagenes_convertidas.zip");
+        addMessage('success', 'Archivo ZIP descargado con éxito.');
+      } catch (err) {
+        addMessage('error', `Error al crear el archivo ZIP: ${err.message}`);
+        console.error('JSZip error:', err);
+      }
+    });
+
+    downloadAllNormalBtn.addEventListener('click', () => {
+      if (convertedBlobs.length === 0) {
+        addMessage('warning', 'No hay imágenes convertidas para descargar.');
+        return;
+      }
+
+      if (!confirm(`Estás a punto de descargar ${convertedBlobs.length} imágenes individualmente. ¿Deseas continuar?`)) {
+          return;
+      }
+
+      addMessage('info', `Iniciando descarga individual de ${convertedBlobs.length} imágenes...`);
+      convertedBlobs.forEach((item, index) => {
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = item.url;
+          link.download = item.name;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          addMessage('info', `Descargando "${item.name}"...`);
+        }, index * 300);
+      });
+      addMessage('success', 'Descarga individual completada (revisa tus descargas).');
+    });
+
+    // Eliminado mainInputPreviewContainer.addEventListener('click', () => { ... });
+    // Eliminado mainOutputPreviewContainer.addEventListener('click', () => { ... });
+
+    // Eliminado function openLightbox(source, index) { ... }
+    // Eliminado function closeLightbox() { ... }
+    // Eliminado async function showLightboxSlide(item, source) { ... }
+    // Eliminado function plusSlides(n) { ... }
+
+    // Eliminado lightbox.addEventListener('click', (e) => { ... });
+    // Eliminado document.addEventListener('keydown', (e) => { ... });
+
+    renderInputImages();
+
+    document.addEventListener('DOMContentLoaded', () => {
+        addMessage('info', 'Nota: La previsualización de imágenes en formato ICO y HEIC/HEIF no está disponible directamente en el navegador, pero la conversión a otros formatos sí es posible.');
+    });
+  </script>
+</body>
+</html>

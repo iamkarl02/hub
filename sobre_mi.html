@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sobre mi - Hub</title>
+    <link rel="icon" href="imagenes/logo/pikachu180.png" type="image/png" />
+        <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <!-- Cargar CSS del dock desde HTML -->
+    <link rel="stylesheet" href="componentes/dock.css" />
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #2d3748;
+        }
+
+        /* Estilo para el dock container */
+        #header-container {
+            position: fixed; /* Fijo en la parte superior */
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            /* Puedes añadir fondo o sombra si quieres */
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 10px 0;
+            visibility: hidden; /* Se mostrará cuando cargue */
+        }
+
+        /* Margen superior para el contenido para que no quede debajo del dock */
+        main, section, body > *:not(#header-container) {
+            margin-top: 80px; /* Ajusta según la altura del dock */
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% 200%;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 1s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .skill-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .skill-progress {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4">
+    <!-- Dock container debe estar en body, no en head -->
+    <div id="header-container"></div>
+
+    <!-- Hero Section -->
+    <section id="about" class="max-w-6xl mx-auto mb-16 fade-in">
+        <div class="glass-card p-8">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <div class="flex-shrink-0">
+                    <img src="imagenes/sobre_mi/pikachu.png" alt="Retrato de Carlos, joven programador de 17 años con sonrisa amable y pelo oscuro, con fondo desenfocado de ambiente creativo" class="w-48 h-48 rounded-full object-cover border-4 border-gray-200" />
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-4">Hola, soy <span class="gradient-text">Carlos</span></h2>
+                    <p class="text-gray-600 text-lg mb-6">
+                        Tengo 17 años y soy programador apasionado. Me encanta crear, explorar y dar vida a ideas a través del código y la creatividad.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm">🎸 Música</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm">🛹 Skate</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm">🎩 Magia</span>
+                        <span class="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm">💻 Programar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="max-w-6xl mx-auto mb-16">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">Mis <span class="gradient-text">Habilidades</span></h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card p-6 hover-lift">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-code text-purple-500 text-2xl mr-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800">Desarrollo Web</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Creando experiencias digitales interactivas y funcionales para poder ahorrar un piquillo de tiempo.</p>
+                <div class="skill-bar">
+                    <div class="skill-progress bg-gradient-to-r from-purple-400 to-pink-400" style="width: 40%"></div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-6 hover-lift">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-cube text-green-500 text-2xl mr-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-800">Datapacks Minecraft</h3>
+                </div>
+                <p class="text-gray-600 mb-4">Transformando el universo de Minecraft con customizaciones y experiencias únicas.</p>
+                <div class="skill-bar">
+                    <div class="skill-progress bg-gradient-to-r from-green-400 to-blue-400" style="width: 75%"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interests Section -->
+    <section id="interests" class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold text-gray-800 text-center mb-12">Mis <span class="gradient-text">Gustos</span></h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Programación -->
+            <div class="glass-card p-6 hover-lift group">
+                <div class="text-center mb-6">
+                    <i class="fas fa-laptop-code text-4xl text-purple-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Programación</h3>
+                <p class="text-gray-600 text-center">
+                    Dando vida a ideas a través del código. La lógica y la creatividad unidas para construir soluciones.
+                </p>
+            </div>
+
+            <!-- Minecraft -->
+            <div class="glass-card p-6 hover-lift group">
+                <div class="text-center mb-6">
+                    <i class="fas fa-cube text-4xl text-green-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Minecraft & Datapacks</h3>
+                <p class="text-gray-600 text-center">
+                    Un juego hermoso y simple, un universo de posibilidades. Me especializo en datapacks para transformar este mundo lleno de cubos.
+                </p>
+            </div>
+
+            <!-- Skateboarding -->
+            <div class="glass-card p-6 hover-lift group">
+                <div class="text-center mb-6">
+                    <i class="fas fa-skating text-4xl text-red-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Skateboarding</h3>
+                <p class="text-gray-600 text-center">
+                    Libertad sobre ruedas. Adrenalina en la carretera y la sensación de volar sobre el asfalto.
+                </p>
+            </div>
+
+            <!-- Música -->
+            <div class="glass-card p-6 hover-lift group">
+                <div class="text-center mb-6">
+                    <i class="fas fa-guitar text-4xl text-yellow-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Música</h3>
+                <p class="text-gray-600 text-center">
+                    Un mundo lleno de posibilidades, paz y armonía. Aunque alguna nota siempre sale mal.
+                </p>
+            </div>
+
+            <!-- Magia -->
+            <div class="glass-card p-6 hover-lift group">
+                <div class="text-center mb-6">
+                    <i class="fas fa-hat-wizard text-4xl text-blue-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Magia</h3>
+                <p class="text-gray-600 text-center">
+                    El arte de sorprender y conectar. Creando momentos de asombro y maravilla que rompen con la realidad.
+                </p>
+            </div>
+
+            <!-- Dibujar -->
+            <div class="glass-card p-6 hover-lift group">
+                <div class="text-center mb-6">
+                    <i class="fas fa-paint-brush text-4xl text-pink-500 group-hover:scale-110 transition-transform"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-800 text-center mb-4">Dibujar</h3>
+                <p class="text-gray-600 text-center">
+                    Explorando la creatividad que nunca tuve. Cada trazo es una nueva oportunidad para ver de lo que soy capaz.
+                </p>
+            </div>
+        </div>
+    </section>
+    <footer id="footer-container"></footer>
+    <script>
+        // Detectar si la carpeta 'hub' está en la ruta
+        const pathParts = window.location.pathname.split('/');
+        const hubIndex = pathParts.lastIndexOf('hub');
+        const basePath = hubIndex !== -1
+          ? pathParts.slice(0, hubIndex + 1).join('/') + '/componentes/'
+          : './componentes/';
+
+        // Cargar CSS del dock desde JavaScript (duplicado para rutas dinámicas)
+        const linkCSS = document.createElement('link');
+        linkCSS.rel = 'stylesheet';
+        linkCSS.href = basePath + 'dock.css';
+        linkCSS.onload = () => {
+          // Solo insertar el dock cuando el CSS esté completamente cargado
+          fetch(basePath + 'dock.html')
+            .then(res => res.text())
+            .then(data => {
+              const container = document.getElementById('header-container');
+              container.innerHTML = data;
+
+              // Ajustar enlaces dinámicos
+              const dockItems = container.querySelectorAll('.dock-item');
+              const links = {
+                home: basePath.replace('componentes/', '') + 'index.html',
+                proyectos: basePath.replace('componentes/', '') + 'proyectos.html',
+                conversor: basePath.replace('componentes/', '') + 'conversor.html',
+                sobre_mi: basePath.replace('componentes/', '') + 'sobre_mi.html',
+                redes: basePath.replace('componentes/', '') + 'redes_sociales.html'
+              };
+
+              dockItems.forEach(item => {
+                const section = item.dataset.section;
+                if (section === 'home') item.href = links.home;
+                if (section === 'projects') item.href = links.proyectos;
+                if (section === 'conversor') item.href = links.conversor;
+                if (section === 'sobre_mi') item.href = links.sobre_mi;
+                if (section === 'social') item.href = links.redes;
+              });
+
+              // Cargar JS del dock
+              const scriptJS = document.createElement('script');
+              scriptJS.src = basePath + 'dock.js';
+              document.body.appendChild(scriptJS);
+
+              // Mostrar el dock solo cuando todo esté listo
+              container.style.visibility = 'visible';
+            })
+            .catch(err => console.error('Error cargando dock:', err));
+        };
+        document.head.appendChild(linkCSS);
+
+        // Cargar JS del fondo
+        const scriptFondo = document.createElement('script');
+        scriptFondo.src = basePath + 'fondo.js';
+        document.head.appendChild(scriptFondo);
+
+        // Efecto de aparición suave para las tarjetas
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.glass-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // Animación de barras de habilidades
+            const skillBars = document.querySelectorAll('.skill-bar');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const progress = entry.target.querySelector('.skill-progress');
+                        progress.style.width = progress.style.width;
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            skillBars.forEach(bar => observer.observe(bar));
+        });
+        
+          document.addEventListener('DOMContentLoaded', () => {
+    fetch('componentes/pie_de_pagina.html')
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById('footer-container').innerHTML = html;
+      })
+      .catch(err => console.error('Error al cargar el footer:', err));
+  });
+    </script>
+</body>
+</html>

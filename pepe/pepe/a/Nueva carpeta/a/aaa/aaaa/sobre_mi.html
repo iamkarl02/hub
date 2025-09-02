@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ejemplo - Hub</title>
+  <link rel="icon" href="../../../../../../../imagenes/logo/pikachu180.png" type="image/png" />
+  <div id="header-container" style="visibility: hidden;"></div>
+
+  <!-- Cargar CSS del dock desde HTML -->
+  <link rel="stylesheet" href="componentes/dock.css">
+</head>
+<body>
+  <script>
+    // Detectar si la carpeta 'hub' está en la ruta
+    const pathParts = window.location.pathname.split('/');
+    const hubIndex = pathParts.lastIndexOf('hub');
+    const basePath = hubIndex !== -1
+      ? pathParts.slice(0, hubIndex + 1).join('/') + '/componentes/'
+      : './componentes/';
+
+    // Cargar CSS del dock desde JavaScript (duplicado para rutas dinámicas)
+    const linkCSS = document.createElement('link');
+    linkCSS.rel = 'stylesheet';
+    linkCSS.href = basePath + 'dock.css';
+    linkCSS.onload = () => {
+      // Solo insertar el dock cuando el CSS esté completamente cargado
+      fetch(basePath + 'dock.html')
+        .then(res => res.text())
+        .then(data => {
+          const container = document.getElementById('header-container');
+          container.innerHTML = data;
+
+          // Ajustar enlaces dinámicos
+          const dockItems = container.querySelectorAll('.dock-item');
+          const links = {
+            home: basePath.replace('componentes/', '') + 'index.html',
+            proyectos: basePath.replace('componentes/', '') + 'proyectos.html',
+            conversor: basePath.replace('componentes/', '') + 'conversor.html',
+            sobre_mi: basePath.replace('componentes/', '') + 'sobre_mi.html',
+            redes: basePath.replace('componentes/', '') + 'redes_sociales.html'
+          };
+
+          dockItems.forEach(item => {
+            const section = item.dataset.section;
+            if (section === 'home') item.href = links.home;
+            if (section === 'projects') item.href = links.proyectos;
+            if (section === 'conversor') item.href = links.conversor;
+            if (section === 'sobre_mi') item.href = links.sobre_mi;
+            if (section === 'social') item.href = links.redes;
+          });
+
+          // Cargar JS del dock
+          const scriptJS = document.createElement('script');
+          scriptJS.src = basePath + 'dock.js';
+          document.body.appendChild(scriptJS);
+
+          // Mostrar el dock solo cuando todo esté listo
+          container.style.visibility = 'visible';
+        })
+        .catch(err => console.error('Error cargando dock:', err));
+    };
+    document.head.appendChild(linkCSS);
+
+    // Cargar JS del fondo
+    const scriptFondo = document.createElement('script');
+    scriptFondo.src = basePath + 'fondo.js';
+    document.head.appendChild(scriptFondo);
+  </script>
+</body>
+</html>

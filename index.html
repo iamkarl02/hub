@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index - Hub</title>
+    <link rel="icon" href="imagenes/logo/pikachu180.png" type="image/png" />
+    <div id="header-container" style="visibility: hidden;"></div>
+
+  <!-- Cargar CSS del dock desde HTML -->
+  <link rel="stylesheet" href="componentes/dock.css">
+    <style>
+        /* Estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: transparent; /* Se mantiene transparente para que se vea el fondo de las cartas */
+            color: #333; /* Color base, pero se sobrescribe en otras secciones */
+            overflow-x: hidden; /* ¡IMPORTANTE! Evita scroll horizontal no deseado */
+            min-height: 100vh;
+        }
+
+        /* HERO SECTION */
+        .hero-developer {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: transparent; /* Se mantiene transparente */
+        }
+
+        .hero-content {
+            text-align: center; /* Asegura que el texto y elementos inline-block se centren */
+            z-index: 10;
+            max-width: 100%; /* Asegura que no haya un límite de ancho fijo que impida el escalado */
+            padding: 0 40px; /* Margen lateral de 40px en pantallas grandes */
+            width: 100%;
+        }
+
+        /* TEXTO PRINCIPAL "DESARROLLADOR" */
+        .developer-title {
+            /* CLAVE: Para que el texto se mantenga en una sola línea y se ajuste */
+            white-space: nowrap; /* Fuerza el texto a una sola línea */
+            overflow: hidden; /* Oculta el contenido que se desborda */
+            text-overflow: clip; /* No muestra puntos suspensivos, simplemente lo recorta si no cabe */
+            
+            font-size: 160px; /* Tamaño inicial grande, JavaScript lo ajustará */
+            font-weight: 800; /* Más negrita */
+            text-transform: uppercase;
+            position: relative;
+            color: #FFFFFF; /* Blanco puro para máxima visibilidad */
+            letter-spacing: 0.04em; /* Ligeramente reducido para que quepa mejor con el margen */
+            line-height: 1.1; 
+            margin-bottom: 30px;
+            font-family: 'SF Pro Display', -apple-system, sans-serif;
+            
+            /* Efecto de borde amarillo usando text-shadow */
+            text-shadow: 
+                -2px -2px 0 #FFD700,  /* Arriba-izquierda */
+                 2px -2px 0 #FFD700,  /* Arriba-derecha */
+                -2px  2px 0 #FFD700,  /* Abajo-izquierda */
+                 2px  2px 2px #FFD700,  /* Abajo-derecha */
+                 0 0 10px rgba(0,0,0,0.3), /* Sombra original para profundidad */
+                 0 0 20px rgba(0,0,0,0.1);
+            
+            animation: none; /* La animación se controlará por JS */
+        }
+
+        /* EFECTO GLITCH (se aplicará con JS) */
+        .developer-title.glitch-active {
+            animation: glitchRandom 0.5s steps(2, end) infinite; /* Animación más corta y abrupta */
+        }
+
+        @keyframes glitchRandom {
+            0% {
+                opacity: 1;
+                transform: translate(0);
+                filter: hue-rotate(0deg) contrast(1);
+                /* Mantener el text-shadow original y el borde amarillo */
+                text-shadow: 
+                    -2px -2px 0 #FFD700, 2px -2px 0 #FFD700, 
+                    -2px  2px 0 #FFD700, 2px  2px 0 #FFD700, 
+                    0 0 10px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.1);
+            }
+            25% {
+                opacity: 0.8;
+                transform: translate(-2px, 1px) skew(1deg);
+                filter: hue-rotate(120deg) contrast(1.1);
+                text-shadow: 
+                    2px 0 #ff0040, -2px 0 #00ff40, /* Glitch colors */
+                    -2px -2px 0 #FFD700, 2px -2px 0 #FFD700, 
+                    -2px  2px 0 #FFD700, 2px  2px 0 #FFD700; /* Keep yellow border */
+            }
+            50% {
+                opacity: 0.2;
+                transform: translate(3px, -2px) skew(-2deg);
+                filter: hue-rotate(240deg) contrast(1.4);
+                text-shadow: 
+                    -3px 0 #ff0040, 3px 0 #00ff40, /* Glitch colors */
+                    -2px -2px 0 #FFD700, 2px -2px 0 #FFD700, 
+                    -2px  2px 0 #FFD700, 2px  2px 0 #FFD700; /* Keep yellow border */
+            }
+            75% {
+                opacity: 0.9;
+                transform: translate(-1px, 3px) skew(0.5deg);
+                filter: hue-rotate(60deg) contrast(0.9);
+                text-shadow: 
+                    4px 0 #ff4080, -4px 0 #40ff80, /* Glitch colors */
+                    -2px -2px 0 #FFD700, 2px -2px 0 #FFD700, 
+                    -2px  2px 0 #FFD700, 2px  2px 0 #FFD700; /* Keep yellow border */
+            }
+            100% {
+                opacity: 1;
+                transform: translate(0);
+                filter: hue-rotate(0deg) contrast(1);
+                /* Volver al text-shadow original y el borde amarillo */
+                text-shadow: 
+                    -2px -2px 0 #FFD700, 2px -2px 0 #FFD700, 
+                    -2px  2px 0 #FFD700, 2px  2px 0 #FFD700, 
+                    0 0 10px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.1);
+            }
+        }
+
+        /* CAPAS DE GLITCH ALEATORIAS */
+        .developer-title::before,
+        .developer-title::after {
+            content: 'DESARROLLADOR';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-weight: 800; /* Más negrita */
+            /* Hereda el font-size del padre para que se ajuste */
+            letter-spacing: inherit; /* Hereda el letter-spacing del padre */
+            line-height: inherit; /* Hereda el line-height del padre */
+            text-shadow: none; /* Las capas no necesitan sombra de texto */
+            
+            /* Borde amarillo para las capas de glitch */
+            -webkit-text-stroke: 2px #FFD700; /* Para navegadores WebKit */
+            text-stroke: 2px #FFD700;
+            
+            /* Color transparente por defecto para evitar duplicación */
+            color: transparent; 
+            
+            animation: none; /* La animación se controlará por JS */
+        }
+
+        /* Solo cuando glitch-active está presente, las capas tienen color */
+        .developer-title.glitch-active::before {
+            color: #FF4081; /* Un rosa más vibrante */
+            animation: glitchLayer1Random 0.5s steps(2, end) infinite; /* Animación más corta y abrupta */
+            z-index: -1;
+        }
+
+        .developer-title.glitch-active::after {
+            color: #40E0D0; /* Un turquesa vibrante */
+            animation: glitchLayer2Random 0.5s steps(2, end) infinite; /* Animación más corta y abrupta */
+            z-index: -2;
+        }
+
+        @keyframes glitchLayer1Random {
+            0% {
+                opacity: 0;
+                transform: translate(0);
+                clip-path: inset(0);
+            }
+            25% {
+                opacity: 0.7;
+                transform: translate(4px, -2px);
+                clip-path: inset(25% 0 35% 0);
+            }
+            50% {
+                opacity: 0.3;
+                transform: translate(-3px, 3px);
+                clip-path: inset(55% 0 15% 0);
+            }
+            75% {
+                opacity: 0.8;
+                transform: translate(2px, -3px);
+                clip-path: inset(15% 0 55% 0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(0);
+                clip-path: inset(0);
+            }
+        }
+
+        @keyframes glitchLayer2Random {
+            0% {
+                opacity: 0;
+                transform: translate(0);
+                clip-path: inset(0);
+            }
+            25% {
+                opacity: 0.5;
+                transform: translate(-3px, 2px);
+                clip-path: inset(45% 0 25% 0);
+            }
+            50% {
+                opacity: 0.8;
+                transform: translate(4px, -3px);
+                clip-path: inset(20% 0 60% 0);
+            }
+            75% {
+                opacity: 0.2;
+                transform: translate(-2px, 4px);
+                clip-path: inset(55% 0 20% 0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(0);
+                clip-path: inset(0);
+            }
+        }
+
+        /* LÍNEA CON GLITCH ALEATORIO */
+        .developer-title-container::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #3498db, transparent);
+            animation: none; /* La animación se controlará por JS */
+        }
+
+        .developer-title-container.glitch-active::after {
+            animation: lineGlitchRandom 0.5s steps(2, end) infinite; /* Animación más corta y abrupta */
+        }
+
+        .developer-title-container {
+            position: relative;
+            display: inline-block; /* Permite que el contenedor se ajuste al tamaño del texto */
+            width: 100%; /* Asegura que ocupe el ancho disponible para centrar */
+        }
+
+        /* FRASE CON TYPEWRITER FUNCIONAL */
+        .phrase-container {
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1.5s forwards;
+            color: #000000; /* Negro puro para máxima visibilidad */
+            font-weight: 600; /* Más negrita para mejor lectura */
+            /* Borde blanco para la frase */
+            text-shadow: 
+                -1px -1px 0 #FFFFFF,  /* Arriba-izquierda */
+                 1px -1px 0 #FFFFFF,  /* Arriba-derecha */
+                -1px  1px 0 #FFFFFF,  /* Abajo-izquierda */
+                 1px  1px 0 #FFFFFF,  /* Abajo-derecha */
+                 0 0 5px rgba(0,0,0,0.2); /* Sombra sutil para profundidad */
+        }
+
+        .phrase-typewriter {
+            border-right: 2px solid #3498db;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { border-color: transparent; }
+            51%, 100% { border-color: #3498db; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* BOTONES */
+        .hero-actions {
+            display: flex !important;
+            gap: 30px !important;
+            justify-content: center !important; /* Centra los botones horizontalmente */
+            flex-wrap: wrap !important;
+            margin-top: 50px !important;
+        }
+        
+        .action-btn {
+            padding: 18px 35px !important;
+            border: 2px solid transparent !important;
+            border-radius: 12px !important;
+            font-size: 1.1rem !important;
+            font-weight: 600 !important;
+            text-decoration: none !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            position: relative !important;
+            overflow: hidden !important;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            min-width: 180px !important;
+            justify-content: center !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            backdrop-filter: blur(10px) !important;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+
+        .btn-projects {
+            color: #e74c3c !important;
+            border-color: #e74c3c !important;
+        }
+
+        .btn-projects:hover {
+            background: #e74c3c !important;
+            color: white !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 12px 35px rgba(231, 76, 60, 0.3) !important;
+            animation: buttonGlitch 0.3s ease !important;
+        }
+
+        .btn-social {
+            color: #3498db !important; 
+            border-color: #3498db !important;
+        }
+
+        .btn-social:hover {
+            background: #3498db !important; 
+            color: white !important;
+            transform: translateY(-3px) !important;
+            box-shadow: 0 12px 35px rgba(52, 152, 219, 0.3) !important;
+            animation: buttonGlitch 0.3s ease !important;
+        }
+
+        @keyframes buttonGlitch {
+            0%, 100% { transform: translateY(-3px); }
+            25% { transform: translateY(-3px) translate(1px, -1px); }
+            50% { transform: translateY(-3px) translate(-1px, 1px); }
+            75% { transform: translateY(-3px) translate(1px, 1px); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .hero-content {
+                padding: 0 30px; /* Ajuste de padding para pantallas medianas */
+            }
+            .developer-title {
+                letter-spacing: 0.04em; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: 0 20px; /* Ajuste de padding para tablets */
+            }
+            .developer-title {
+                letter-spacing: 0.03em; /* Ajuste fino para que quepa mejor en tablets */
+            }
+            
+            .hero-actions {
+                flex-direction: column !important;
+                align-items: center !important;
+                gap: 20px !important;
+            }
+            
+            .action-btn {
+                width: 250px !important;
+                padding: 16px 30px !important;
+                font-size: 1rem !important;
+            }
+            
+            .phrase-container {
+                font-size: 1rem;
+                padding: 0 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Reducir padding horizontal para dar más espacio al texto */
+            .hero-content {
+                padding: 0 10px; /* Margen lateral de 10px en móviles para más espacio */
+            }
+            .developer-title {
+                /* El font-size se ajustará con JS, pero podemos dar un valor base */
+                font-size: 100px; /* Un tamaño inicial razonable para móviles */
+                letter-spacing: 0.01em; /* Reducir aún más el letter-spacing para móviles */
+            }
+            
+            .action-btn {
+                width: 220px !important;
+                padding: 14px 25px !important;
+                font-size: 0.95rem !important;
+            }
+            
+            /* ==================== OVERRIDE PARA BOTONES DOCK ==================== */
+
+            .phrase-container {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ==================== CONTENEDOR PARA EL DOCK ==================== -->
+    <div id="header-container"></div>
+    <!-- Este div es donde se cargará el dock navegación -->
+
+    <!-- HERO SECTION -->
+    <section class="hero-developer">
+        <div class="hero-content">
+            <div class="developer-title-container">
+                <h1 class="developer-title">DESARROLLADOR</h1>
+            </div>
+            
+            <!-- FRASE CON TYPEWRITER FUNCIONAL -->
+            <div class="phrase-container">
+                <span class="phrase-typewriter" id="phraseTypewriter"></span>
+            </div>
+            
+            <div class="hero-actions">
+                <a href="#" class="action-btn btn-projects" data-section="projects">
+                    <span>Ver Proyectos</span>
+                </a>
+                <a href="#" class="action-btn btn-social" data-section="social">
+                    <span>Mis Redes</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+           // Detectar si la carpeta 'hub' está en la ruta
+    const pathParts = window.location.pathname.split('/');
+    const hubIndex = pathParts.lastIndexOf('hub');
+    const basePath = hubIndex !== -1
+      ? pathParts.slice(0, hubIndex + 1).join('/') + '/componentes/'
+      : './componentes/';
+
+    // Cargar CSS del dock desde JavaScript (duplicado para rutas dinámicas)
+    const linkCSS = document.createElement('link');
+    linkCSS.rel = 'stylesheet';
+    linkCSS.href = basePath + 'dock.css';
+    linkCSS.onload = () => {
+      // Solo insertar el dock cuando el CSS esté completamente cargado
+      fetch(basePath + 'dock.html')
+        .then(res => res.text())
+        .then(data => {
+          const container = document.getElementById('header-container');
+          container.innerHTML = data;
+
+          // Ajustar enlaces dinámicos
+          const dockItems = container.querySelectorAll('.dock-item');
+          const links = {
+            home: basePath.replace('componentes/', '') + 'index.html',
+            proyectos: basePath.replace('componentes/', '') + 'proyectos.html',
+            conversor: basePath.replace('componentes/', '') + 'conversor.html',
+            sobre_mi: basePath.replace('componentes/', '') + 'sobre_mi.html',
+            redes: basePath.replace('componentes/', '') + 'redes_sociales.html'
+          };
+
+          dockItems.forEach(item => {
+            const section = item.dataset.section;
+            if (section === 'home') item.href = links.home;
+            if (section === 'projects') item.href = links.proyectos;
+            if (section === 'conversor') item.href = links.conversor;
+            if (section === 'sobre_mi') item.href = links.sobre_mi;
+            if (section === 'social') item.href = links.redes;
+          });
+
+          // Cargar JS del dock
+          const scriptJS = document.createElement('script');
+          scriptJS.src = basePath + 'dock.js';
+          document.body.appendChild(scriptJS);
+
+          // Mostrar el dock solo cuando todo esté listo
+          container.style.visibility = 'visible';
+        })
+        .catch(err => console.error('Error cargando dock:', err));
+    };
+    document.head.appendChild(linkCSS);
+
+    // Cargar JS del fondo
+    const scriptFondo = document.createElement('script');
+    scriptFondo.src = basePath + 'fondo.js';
+    document.head.appendChild(scriptFondo);
+        
+        // ==================== TYPEWRITER PARA LA FRASE ====================
+        const phraseElement = document.getElementById('phraseTypewriter');
+        const phrases = [
+            "Convirtiendo la lógica en experiencias interactivas.",
+            "Construyendo puentes entre la imaginación y la realidad digital.",
+            "Dando vida a la innovación a través de cada algoritmo.",
+            "Resolviendo desafíos complejos con soluciones elegantes.",
+            "El arte de programar, la ciencia de crear.",
+            "Más allá del código, la pasión por la funcionalidad.",
+            "Cada línea, un paso hacia el mañana.",
+            "Desarrollando el presente, programando el futuro.",
+            "La creatividad se encuentra con la eficiencia en cada proyecto.",
+            "De la idea al pixel, un viaje de transformación.",
+            "Optimizando el rendimiento, mejorando la experiencia.",
+            "Creando interfaces intuitivas, construyendo sistemas robustos.",
+            "El código es mi lienzo, la web mi obra de arte.",
+            "Innovación constante, desarrollo sin límites.",
+            "Diseñando arquitecturas que escalan, experiencias que cautivan.",
+            "La tecnología como herramienta, la visión como guía.",
+            "Forjando el futuro digital, un commit a la vez.",
+            "Donde la lógica se encuentra con la magia de la usabilidad.",
+            "Programando sueños, depurando la realidad.",
+            "Mi pasión: hacer que las cosas funcionen, y funcionen bien."
+                    ];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function typeWriter() {
+            const currentPhrase = phrases[phraseIndex];
+            if (isDeleting) {
+                phraseElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                phraseElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                setTimeout(() => isDeleting = true, 2000);
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+            }
+
+            const typingSpeed = isDeleting ? 50 : 100;
+            setTimeout(typeWriter, typingSpeed);
+        }
+
+        // ==================== AJUSTE DE TAMAÑO DE FUENTE PARA UNA SOLA LÍNEA ====================
+        const developerTitle = document.querySelector('.developer-title');
+        const developerTitleContainer = document.querySelector('.developer-title-container');
+
+        function adjustFontSizeToFit() {
+            const containerWidth = developerTitleContainer.offsetWidth;
+            let currentFontSize = parseFloat(getComputedStyle(developerTitle).fontSize);
+            
+            // Resetear el tamaño de fuente a un valor grande para empezar a reducir
+            developerTitle.style.fontSize = '160px'; // O un valor muy grande
+            currentFontSize = parseFloat(getComputedStyle(developerTitle).fontSize);
+
+            // Reducir el tamaño de fuente hasta que quepa
+            while (developerTitle.scrollWidth > containerWidth && currentFontSize > 10) { // Mínimo 10px
+                currentFontSize -= 1;
+                developerTitle.style.fontSize = currentFontSize + 'px';
+            }
+
+            // Si el texto es demasiado pequeño, intentar aumentarlo un poco si hay espacio
+            // Esto es para evitar que sea excesivamente pequeño si el contenedor es muy grande
+            while (developerTitle.scrollWidth < containerWidth && currentFontSize < 160) { // Máximo 160px
+                const testFontSize = currentFontSize + 1;
+                developerTitle.style.fontSize = testFontSize + 'px';
+                if (developerTitle.scrollWidth > containerWidth) {
+                    developerTitle.style.fontSize = currentFontSize + 'px'; // Volver al anterior si se desborda
+                    break;
+                }
+                currentFontSize = testFontSize;
+            }
+        }
+
+        // Ejecutar el ajuste al cargar y al redimensionar la ventana
+        window.addEventListener('load', adjustFontSizeToFit);
+        window.addEventListener('resize', adjustFontSizeToFit);
+
+        // ==================== GLITCH ALEATORIO ====================
+        const GLITCH_DURATION = 500; // Duración del efecto glitch en milisegundos
+        const MIN_GLITCH_INTERVAL = 5000; // Mínimo 5 segundos
+        const MAX_GLITCH_INTERVAL = 15000; // Máximo 15 segundos
+
+        function triggerGlitch() {
+            // Añadir la clase para activar la animación
+            developerTitle.classList.add('glitch-active');
+            developerTitleContainer.classList.add('glitch-active');
+
+            // Eliminar la clase después de la duración del glitch
+            setTimeout(() => {
+                developerTitle.classList.remove('glitch-active');
+                developerTitleContainer.classList.remove('glitch-active');
+                // Programar el próximo glitch
+                scheduleNextGlitch();
+            }, GLITCH_DURATION);
+        }
+
+        function scheduleNextGlitch() {
+            const randomInterval = Math.random() * (MAX_GLITCH_INTERVAL - MIN_GLITCH_INTERVAL) + MIN_GLITCH_INTERVAL;
+            setTimeout(triggerGlitch, randomInterval);
+        }
+
+        // Iniciar el efecto typewriter y el primer glitch cuando la página cargue
+        document.addEventListener('DOMContentLoaded', () => {
+    typeWriter();
+    scheduleNextGlitch(); // Inicia el ciclo de glitches aleatorios
+
+    // === BOTONES HERO COMO DOCK ===
+    const links = {
+        proyectos: './proyectos.html',
+        redes: './redes_sociales.html'
+    };
+
+    const heroDockButtons = document.querySelectorAll('.hero-actions .action-btn');
+
+    heroDockButtons.forEach(item => {
+        const section = item.dataset.section;
+        if (section === 'projects') item.href = links.proyectos;
+        if (section === 'social') item.href = links.redes;
+    });
+});
+
+    </script>
+</body>
+</html>
